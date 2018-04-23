@@ -1,0 +1,58 @@
+    .axis text {
+        font-family: sans-serif;
+        font-size: 11px;
+    }
+
+    .axis2 text {
+        font-family: sans-serif;
+        font-size: 10px;
+    }
+
+    .legend text {
+        font-family: sans-serif;
+        font-size: 11px;
+    }
+
+.legend {
+    cursor: pointer;
+}
+    .gridx .tick, .gridy .tick {
+    stroke: lightgrey;
+    opacity: 0.3;
+}
+div.tooltip { 
+    position: absolute;     
+    text-align: center;     
+    width: 100px;          
+    height: 38px;         
+    padding: 8px;       
+    font: 12px sans-serif;    
+    background-color: rgba(255,255,255,1);
+    border: 1px solid #ddd;     
+    pointer-events: none;
+
+  -moz-box-shadow: 4px 4px 12px rgba(0,0,0,.5);
+  -webkit-box-shadow: 4px 4px 12px rgba(0,0,0,.5);
+  box-shadow: 4px 4px 12px rgba(0,0,0,.5);
+
+  -moz-border-radius: 15px;
+  border-radius: 15px;
+
+
+
+  font-family: Arial;
+  font-size: 13px;     
+}
+
+.gridx path, .gridy path {
+      stroke-width: 0;
+}
+.d {
+  fill: none;
+  stroke: blue;
+  stroke-width: 1.8px;
+}
+.line-one, .line-two, .line-three  {
+  fill: none;
+  stroke-width: 1.8px;
+}

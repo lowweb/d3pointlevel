@@ -141,9 +141,10 @@ var tipTimeFormat = d3.timeFormat("%d.%m.%Y %H:%M");
          .attr("r", 3)
          .attr("cx", function(d) { return xScale(d.Date); })
          .attr("cy", function(d) { return yScaleLeft(d[param.series[j].yColumn]); })
-          .style ("fill-opacity","0")
-          .style ("stroke-width","2px")
-          .style ("stroke",function(d) {return param.series[j].color; })    
+          //.style ("fill-opacity","1")
+          .style ("fill",function(d) {return param.series[j].color; }) 
+          //.style ("stroke-width","2px")
+          //.style ("stroke",function(d) {return param.series[j].color; })    
           .on("mouseover", function(d) {
             tooltipdiv.transition()
                       .duration(200)
@@ -170,11 +171,29 @@ var tipTimeFormat = d3.timeFormat("%d.%m.%Y %H:%M");
       .attr("cy", 0 - (margin.bottom / 4))
       .attr("cx", function(d, i){ return i *  130;})
       .attr("r", "7")
-      .style ("fill-opacity","0")
-      .style ("stroke-width","5px")
-      .style ("stroke",function(d) {return d.color; });
+      .style ("fill",function(d) {return d.color; })
+      .on("mouseover", function(d) {
+            //d3.select(this).style("fill", "red"); 
+            d3.select(this).style ("fill-opacity","1")
+              .attr("r", "5")
+              .style ("stroke-width","3%")
+              .style ("stroke",function(d) {return d.color; })
+              .style ("stroke-opacity","0.3")
+               .style ("transition","500ms");  
+            })   
+          .on("mouseout", function(d) {   
+            //d3.select(this).style ("fill","red"); 
+            d3.select(this)
+            .attr("r", "7")
+            .style ("fill-opacity","1")
+            .style ("stroke-width","0px");
 
-      
+        });
+
+      //.style ("fill-opacity","0")
+      //.style ("stroke-width","5px")
+      //.style ("stroke",function(d) {return d.color; });
+ 
     legend.selectAll('text').data(param.series).enter()
       .append("text").attr("y", 0 - (margin.bottom / 4)+5).attr("x", function(d, i){ return i *  130 + 12;})
       .text(function(d) { return d.title; });
@@ -264,9 +283,10 @@ function changePoint() {
                .attr("r", 3)
                .attr("cx", function(d) { return xScale(d.Date); })
                .attr("cy", function(d) { return yScaleLeft(d[param.series[j].yColumn]); })
-               .style ("fill-opacity","0")
-               .style ("stroke-width","2px")
-               .style ("stroke",function(d) {return param.series[j].color; });
+               //.style ("fill-opacity","0")
+               .style ("fill",function(d) {return param.series[j].color; }); 
+              //.style ("stroke-width","2px")
+              //.style ("stroke",function(d) {return param.series[j].color; }) 
 
         g.selectAll(".circle-" +param.series[j].name)
          .on("mouseover", function(d) {

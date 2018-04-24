@@ -52,7 +52,7 @@ var param = {
         parentSelector: "#pointgraph",
         width: 1000,
         height: 500,
-        title: "Прогнозы",
+        title: "",
         xColumn: "Date",
         xAxisName: "Период",
         yLeftAxisName: "Величина",
@@ -74,11 +74,11 @@ var originaldata;
 //сохранили массив в перменную, занесли в комбобокс даты
 d3.tsv("/data/sample2.tsv", function(error, data) {
       if (error) throw error;
-      d3sPreParceDann("Date","%d.%m.%Y %H:%M",[idPoint+"-1",idPoint+"-2",idPoint+"-3"],data);
+      DataParse ("Date","%d.%m.%Y %H:%M",[idPoint+"-1",idPoint+"-2",idPoint+"-3"],data);
       //d3sChart(param,data);
        originaldata=data;
 
-       dateFormat = d3.timeFormat("%d.%m.%Y");
+      dateFormat = d3.timeFormat("%d.%m.%Y");
       var fields = data,tmpDate;
         for (var i = 0; i < fields.length; i++) {
                 if (tmpDate!=dateFormat(fields[i].Date))
@@ -91,15 +91,11 @@ d3.tsv("/data/sample2.tsv", function(error, data) {
 
               }
               tmpDate=dateFormat(fields[i].Date);
-        }             
+        }  
+     //рисуем график
+     MakeChart(param,data);            
     });
 
-//падаем параметры прорисовываем
-d3.tsv("/data/sample2.tsv", function(error, data) {
-      if (error) throw error;
-      d3sPreParceDann("Date","%d.%m.%Y %H:%M",[idPoint+"-1",idPoint+"-2",idPoint+"-3"],data);
-      d3sChart(param,data);    
-    });
 
 
 

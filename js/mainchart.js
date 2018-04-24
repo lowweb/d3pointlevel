@@ -1,8 +1,10 @@
 
-function d3sChart (param,data,dataGroup){
+function MakeChart (param,data){
 
   var selectedObj = null;
   selectedObj = d3.select(param.parentSelector);
+
+  var markerDotGlobal=1;
 
   if (param.width == 0) {param.width = parseInt(selectedObj.style('width'), 10);};
   if (param.height == 0) {param.height = parseInt(selectedObj.style('height'), 10);};
@@ -81,13 +83,13 @@ function d3sChart (param,data,dataGroup){
         .text(param.title);
   g.append("text").attr("x", width-43).attr("dx", 40) .attr("y", height+30 )
         .attr("text-anchor", "end") 
-        .text(param.xAxisName)
-        .style("font-weight","bold");
+        .text(param.xAxisName);
+        //.style("font-weight","bold");
   g.append("text").attr("transform", "rotate(-90)")
         .attr("x", 0) .attr("y", -70).attr("dy", 40)
         .attr("text-anchor", "end") 
-        .text(param.yLeftAxisName)
-        .style("font-weight","bold");
+        .text(param.yLeftAxisName);
+        //.style("font-weight","bold");
 
 
   //сами оси
@@ -141,19 +143,27 @@ var tipTimeFormat = d3.timeFormat("%d.%m.%Y %H:%M");
          .attr("r", 3)
          .attr("cx", function(d) { return xScale(d.Date); })
          .attr("cy", function(d) { return yScaleLeft(d[param.series[j].yColumn]); })
-          //.style ("fill-opacity","1")
-          .style ("fill",function(d) {return param.series[j].color; }) 
-          //.style ("stroke-width","2px")
-          //.style ("stroke",function(d) {return param.series[j].color; })    
+          .style ("fill-opacity","1")
+          .style ("fill","none") 
+          .style ("stroke-width","2px")
+          .style ("stroke-opacity","0.5")
+          .style ("stroke",function(d) {return param.series[j].color; })    
           .on("mouseover", function(d) {
+            d3.select(this)
+              .style ("stroke-width","2%")
+              .style ("stroke-opacity","1");
+              //.style ("transition","500ms");
             tooltipdiv.transition()
                       .duration(200)
                       .style("opacity", .9);
             tooltipdiv .html(tipTimeFormat(d.Date) +   "<br/>"  + "0")     
-                       .style("left", (d3.event.pageX) + "px")             
-                       .style("top", (d3.event.pageY - 28) + "px");
+                       .style("left", (d3.event.pageX + 10) + "px")             
+                       .style("top", (d3.event.pageY - 8) + "px");
             })       
-          .on("mouseout", function(d) {   
+          .on("mouseout", function(d) {
+          d3.select(this)
+            .style ("stroke-width","2px")
+            .style ("stroke-opacity","0.5");   
             tooltipdiv.transition()    
                 .duration(500)    
                 .style("opacity", 0); 
@@ -162,14 +172,17 @@ var tipTimeFormat = d3.timeFormat("%d.%m.%Y %H:%M");
 
 
   //легенда 
-  var legend = svg.append("g").attr("class", "legend").attr("height", 40).attr("width", 200)
-    .attr("transform",(param.title == "") ? "translate(20,20)" : "translate("+(param.width/2 - 150)+","+(param.height-10)+")");   
+  var legend = svg.append("g")
+                  .attr("class", "legend")
+                  .attr("height", 40)
+                  .attr("width", 200)
+    .attr("transform","translate("+(param.width/2 - 150)+","+(param.height-10)+")");   
      
   legend.selectAll('rect').data(param.series).enter()
       .append("circle")
-       .attr ("class", function(d) {return "legend-" + d.name; })
+       .attr ("class", function(d) {return "legend " + d.name; })
       .attr("cy", 0 - (margin.bottom / 4))
-      .attr("cx", function(d, i){ return i *  130;})
+      .attr("cx", function(d, i){ return i *  (d.title.length*7);})
       .attr("r", "7")
       .style ("fill",function(d) {return d.color; })
       .on("mouseover", function(d) {
@@ -189,27 +202,52 @@ var tipTimeFormat = d3.timeFormat("%d.%m.%Y %H:%M");
             .style ("stroke-width","0px");
 
         });
-
-      //.style ("fill-opacity","0")
-      //.style ("stroke-width","5px")
-      //.style ("stroke",function(d) {return d.color; });
  
     legend.selectAll('text').data(param.series).enter()
-      .append("text").attr("y", 0 - (margin.bottom / 4)+5).attr("x", function(d, i){ return i *  130 + 12;})
-      .text(function(d) { return d.title; });
+      .append("text")
+      .attr("class",function(d) { return "textlegend-" + d.name; })
+      .attr("y", 0 - (margin.bottom / 4)+5)
+      .attr("x", function(d, i){ return i *  (d.title.length*7) + 15;})
+      .text(function(d) { return d.title; })
+      .style ("opacity","0.7");
 
-$( ".legend-one" ).click(function() {
+//выклюение точек на графике
+ var dotControl = svg.append("g")
+                  .attr("class", "dotControl")
+                  .attr("height", 40)
+                  .attr("width", 200)
+    .attr("transform","translate("+(param.width/2 - 150)+","+(param.height-10)+")");   
+     
+ dotControl.append("circle")
+           .attr ("class", "dotControlBtn")
+           .attr("cy", 0 - (margin.bottom / 4))
+           .attr("cx", height+70)
+           .attr("r", "7")
+           .style ("fill","grey")
+          .on("mouseover", function(d) {
+             d3.select(this).style ("fill-opacity","1")
+              .attr("r", "5")
+              .style ("stroke-width","3%")
+              .style ("stroke","grey")
+              .style ("stroke-opacity","0.3")
+               .style ("transition","500ms");  
+            })   
+          .on("mouseout", function(d) {   
+            d3.select(this)
+            .attr("r", "7")
+            .style ("fill-opacity","1")
+            .style ("stroke-width","0px");
 
-  if ($('.line-one').css('display') != 'none'){
-  d3.selectAll(".line-one").style ("display","none");
-  d3.selectAll(".circle-one").style ("display","none");
-}
-else
-{
-  d3.selectAll(".line-one").style ("display","block");
-  d3.selectAll(".circle-one").style ("display","block"); 
-}
-});
+        });
+      dotControl.append("text")
+               .attr("class","textDotControl")
+               .attr("y", 0 - (margin.bottom / 4)+5)
+               .attr("x", height+80)
+               .text("Маркеры графиков")
+               .style("opacity","0.7");   
+
+
+
      
 //обработчик комбобоксов
 d3.selectAll("#region").on("change", changeRegion);
@@ -283,13 +321,17 @@ function changePoint() {
                .attr("r", 3)
                .attr("cx", function(d) { return xScale(d.Date); })
                .attr("cy", function(d) { return yScaleLeft(d[param.series[j].yColumn]); })
-               //.style ("fill-opacity","0")
-               .style ("fill",function(d) {return param.series[j].color; }); 
-              //.style ("stroke-width","2px")
-              //.style ("stroke",function(d) {return param.series[j].color; }) 
+              .style ("fill-opacity","0")
+             .style ("stroke-width","2px")
+             .style ("stroke-opacity","0.5")
+              .style ("stroke",function(d) {return param.series[j].color; }) 
 
         g.selectAll(".circle-" +param.series[j].name)
          .on("mouseover", function(d) {
+          //эффект для точек при наведении
+          d3.select(this)
+              .style ("stroke-width","1%")
+              .style ("stroke-opacity","1");
          //переменная для определения в какой графике щелнули
          var graphicNum;
          if ($(this).attr("class")=="circle-one") graphicNum="-1";
@@ -299,16 +341,17 @@ function changePoint() {
                    .duration(200)
                    .style("opacity", .9);
          tooltipdiv .html(tipTimeFormat(d.Date) +   "<br/>"  + d[inputPoint+graphicNum])     
-                    .style("left", (d3.event.pageX) + "px")             
-                    .style("top", (d3.event.pageY - 28) + "px");
+                    .style("left", (d3.event.pageX + 10) + "px")             
+                    .style("top", (d3.event.pageY - 8) + "px");
           })
-          .on("mouseout", function(d) {   
+          .on("mouseout", function(d) {  
+            d3.select(this)
+             .style ("stroke-width","2px")
+             .style ("stroke-opacity","0.5");  
             tooltipdiv.transition()    
                       .duration(500)    
                       .style("opacity", 0); 
-           });
- 
-     
+           });   
 
     };
 
@@ -330,6 +373,10 @@ function changeDate() {
       return d.Date >= mindate;
          });
   data=datafilter;
+  //так как линии периросовываются то то делаем активной легенду если какой-то график выключен
+     d3.select(".textlegend-one").style ("opacity","1");
+    d3.select(".textlegend-two").style ("opacity","1");
+     d3.select(".textlegend-three").style ("opacity","1");
 
   xMin=d3.min(data, function(d) { return d[param.xColumn]; });
   xMax=d3.max(data, function(d) { return d[param.xColumn]; });
@@ -398,8 +445,12 @@ function changeDate() {
          .attr("cy", function(d) { return yScaleLeft(d[param.series[j].yColumn]); })
           .style ("fill-opacity","0")
           .style ("stroke-width","2px")
+          .style ("stroke-opacity","0.5")
           .style ("stroke",function(d) {return param.series[j].color; })    
          .on("mouseover", function(d) {
+          d3.select(this)
+              .style ("stroke-width","1%")
+              .style ("stroke-opacity","1");
          //переменная для определения в какой графике щелнули
          var graphicNum;
          if ($(this).attr("class")=="circle-one") graphicNum="-1";
@@ -409,10 +460,13 @@ function changeDate() {
                    .duration(200)
                    .style("opacity", .9);
          tooltipdiv .html(tipTimeFormat(d.Date) +   "<br/>"  + d[inputPoint+graphicNum])     
-                    .style("left", (d3.event.pageX) + "px")             
-                    .style("top", (d3.event.pageY - 28) + "px");
+                    .style("left", (d3.event.pageX + 10) + "px")             
+                    .style("top", (d3.event.pageY - 8) + "px");
           })
-          .on("mouseout", function(d) {   
+          .on("mouseout", function(d) { 
+            d3.select(this)
+              .style ("stroke-width","2px")
+              .style ("stroke-opacity","0.5");   
             tooltipdiv.transition()    
                       .duration(500)    
                       .style("opacity", 0); 
@@ -452,15 +506,74 @@ function changeRegion () {
         } 
 
     });
-//нужно для зануления графиков    
+//нужно для зануления графиков при смене региона   
 changePoint();
 }
+
+/*******************/
+//включение отключение видимости графика
+//выключение точек на графике
+$( "circle.dotControlBtn" ).click(function() {
+
+if (markerDotGlobal==0 && $('.line-one').css('display') != 'none'){
+  d3.selectAll(".circle-one").style ("display","block");
+}
+else {
+  d3.selectAll(".circle-one").style ("display","none"); 
+};
+if (markerDotGlobal==0 && $('.line-two').css('display') != 'none'){
+  d3.selectAll(".circle-two").style ("display","block");
+}
+else {
+  d3.selectAll(".circle-two").style ("display","none");
+};
+if (markerDotGlobal==0 && $('.line-three').css('display') != 'none'){
+  d3.selectAll(".circle-three").style ("display","block");
+}
+else {
+  d3.selectAll(".circle-three").style ("display","none"); 
+};
+
+if (markerDotGlobal==1) {
+  d3.select(".textDotControl").style ("opacity","0.3");
+  markerDotGlobal=0 
+}
+  else {
+    d3.select(".textDotControl").style ("opacity","0.7");
+    markerDotGlobal=1;
+  };
+
+});
+//cам график
+$( "circle.legend" ).click(function() {
+  var subclass=$(this).attr("class");
+      subclass=subclass.substring(subclass.indexOf(" ")+1,subclass.length+1)
+  if ($('.line-' + subclass).css('display') != 'none'){
+  d3.selectAll(".line-" + subclass).style ("display","none");
+  d3.selectAll(".circle-"+ subclass).style ("display","none");
+  d3.select(".textlegend-"+ subclass).style ("opacity","0.3");
+}
+else
+{
+  d3.selectAll(".line-"+ subclass).style ("display","block");
+  if (markerDotGlobal==1)
+  d3.selectAll(".circle-"+ subclass).style ("display","block");
+  d3.select(".textlegend-"+ subclass).style ("opacity","0.7");
+  };
+
+  
+
+});
+
 
 };
 
 
+
+
+
 //парсим колонки 
-function d3sPreParceDann(dateColumn,dateFormat,usedNumColumns,data){
+function DataParse (dateColumn,dateFormat,usedNumColumns,data){
   var parse = d3.timeParse(dateFormat);
   var format = d3.timeFormat (dateFormat);
   data.forEach(function(d) { 

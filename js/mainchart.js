@@ -68,7 +68,21 @@ function MakeChart (param,data){
 
   var svg = selectedObj.append("svg")
       .attr("width", param.width).attr("height", param.height)
-      .attr("id", param.parentSelector.substr(1)+"_chart");
+      .attr("id", param.parentSelector.substr(1)+"_chart")
+      .style ("position","absolute");
+
+//фон когда данные не выбраны
+  selectedObj.append("svg")
+      .attr("width", param.width).attr("height", param.height)
+      .attr("id", "needdata-svg")
+      .style ("position","absolute")
+      .style ("background-color", "#aec3ff")
+      .style ("opacity","0.5");
+      d3.select("#needdata-svg").append('text')
+              .attr("x", width/2-150) .attr("y", height/2)
+              .style ("fill","#7b7894")
+              .style ("font-size","25")
+              .text ("Необходимо задать парметры графика");   
 
   // внешняя рамка
   svg.append("rect").attr("width", param.width).attr("height", param.height)
@@ -121,9 +135,6 @@ var tooltipdiv = selectedObj.append("div")
     .style("opacity", 0);
 var tipTimeFormat = d3.timeFormat("%d.%m.%Y %H:%M"); 
 
-
-
-
    for (var j = 0, len1 = param.series.length; j < len1; j += 1) {
 
      var line = d3.line()
@@ -149,21 +160,24 @@ var tipTimeFormat = d3.timeFormat("%d.%m.%Y %H:%M");
           .style ("stroke-opacity","0.5")
           .style ("stroke",function(d) {return param.series[j].color; })    
           .on("mouseover", function(d) {
+            //эффект для точек при наведении
             d3.select(this)
+              .style ("fill-opacity","1")
+              .style ("fill",$(this).css("stroke"))
               .style ("stroke-width","2%")
-              .style ("stroke-opacity","1");
-              //.style ("transition","500ms");
+              .style ("transition","500ms");
             tooltipdiv.transition()
                       .duration(200)
                       .style("opacity", .9);
-            tooltipdiv .html(tipTimeFormat(d.Date) +   "<br/>"  + "0")     
-                       .style("left", (d3.event.pageX + 10) + "px")             
+            tooltipdiv .html(tipTimeFormat(d.Date) +   "<br/>"  + "<b>0</b>")     
+                       .style("left", (d3.event.pageX + 15) + "px")             
                        .style("top", (d3.event.pageY - 8) + "px");
             })       
           .on("mouseout", function(d) {
-          d3.select(this)
-            .style ("stroke-width","2px")
-            .style ("stroke-opacity","0.5");   
+            d3.select(this)
+             .style ("fill-opacity","0")             
+             .style ("stroke-width","2px")
+             .style ("transition","0ms");   
             tooltipdiv.transition()    
                 .duration(500)    
                 .style("opacity", 0); 
@@ -195,7 +209,6 @@ var tipTimeFormat = d3.timeFormat("%d.%m.%Y %H:%M");
                .style ("transition","500ms");  
             })   
           .on("mouseout", function(d) {   
-            //d3.select(this).style ("fill","red"); 
             d3.select(this)
             .attr("r", "7")
             .style ("fill-opacity","1")
@@ -225,12 +238,12 @@ var tipTimeFormat = d3.timeFormat("%d.%m.%Y %H:%M");
            .attr("r", "7")
            .style ("fill","grey")
           .on("mouseover", function(d) {
-             d3.select(this).style ("fill-opacity","1")
+            d3.select(this).style ("fill-opacity","1")
               .attr("r", "5")
               .style ("stroke-width","3%")
               .style ("stroke","grey")
               .style ("stroke-opacity","0.3")
-               .style ("transition","500ms");  
+               .style ("transition","500ms"); 
             })   
           .on("mouseout", function(d) {   
             d3.select(this)
@@ -255,9 +268,10 @@ d3.selectAll("#point").on("change", changePoint);
 d3.selectAll("#datePeriod").on("change", changeDate);
 
 
+//----------Function------------//
 
 function changePoint() {
-  inputPoint  = this.value;
+ inputPoint  = this.value;
 //подменили в параметрах название колнки точки которой выбрали 1-1 1-2 1-
 //дабы не вызывать полностью блок параметров
   for (var j = 0, len1 = param.series.length; j < len1; j += 1) {
@@ -300,7 +314,11 @@ function changePoint() {
     if ($("#point").val()==null) {
       yLeftMin=0;
       yLeftMax=0;
-    };
+        //показали инфо экран о необходимости выбрать параметры
+      d3.select ("#needdata-svg").style("display","block");
+    }
+      //убрали инфо экран о необходимости выбрать параметры
+    else { d3.select ("#needdata-svg").style("display","none"); };
 
     yScaleLeft.domain([yLeftMin+(yLeftMin/2),yLeftMax]);
     yScaleLeftGrid.domain([yLeftMin+(yLeftMin/2),yLeftMax]);
@@ -324,14 +342,16 @@ function changePoint() {
               .style ("fill-opacity","0")
              .style ("stroke-width","2px")
              .style ("stroke-opacity","0.5")
-              .style ("stroke",function(d) {return param.series[j].color; }) 
+              .style ("stroke",function(d) {return param.series[j].color; }); 
 
         g.selectAll(".circle-" +param.series[j].name)
          .on("mouseover", function(d) {
           //эффект для точек при наведении
           d3.select(this)
-              .style ("stroke-width","1%")
-              .style ("stroke-opacity","1");
+              .style ("fill-opacity","1")
+              .style ("fill",$(this).css("stroke"))
+              .style ("stroke-width","2%")
+              .style ("transition","500ms");
          //переменная для определения в какой графике щелнули
          var graphicNum;
          if ($(this).attr("class")=="circle-one") graphicNum="-1";
@@ -340,14 +360,15 @@ function changePoint() {
          tooltipdiv.transition()
                    .duration(200)
                    .style("opacity", .9);
-         tooltipdiv .html(tipTimeFormat(d.Date) +   "<br/>"  + d[inputPoint+graphicNum])     
-                    .style("left", (d3.event.pageX + 10) + "px")             
-                    .style("top", (d3.event.pageY - 8) + "px");
+         tooltipdiv .html(tipTimeFormat(d.Date) +   "<br/> <b>"  + d[inputPoint+graphicNum] + "</b>")     
+                    .style("left", (d3.event.pageX + 19) + "px")             
+                    .style("top", (d3.event.pageY + 3) + "px");
           })
           .on("mouseout", function(d) {  
             d3.select(this)
+             .style ("fill-opacity","0")             
              .style ("stroke-width","2px")
-             .style ("stroke-opacity","0.5");  
+             .style ("transition","0ms");  
             tooltipdiv.transition()    
                       .duration(500)    
                       .style("opacity", 0); 
@@ -358,6 +379,7 @@ function changePoint() {
 
 };//change point
 
+//********************************//
 
 function changeDate() {
   var parse = d3.timeParse('%d.%m.%Y');
@@ -433,10 +455,7 @@ function changeDate() {
           .attr("d", line)
           .style("stroke", param.series[j].color)
           .delay(delay);*/
-
         //вырисовываем точки на графиках
-
-        //дописать создание точек
         g.selectAll("dot").data(data)
          .enter().append("circle")
          .attr("class", "circle-" +param.series[j].name)
@@ -449,8 +468,10 @@ function changeDate() {
           .style ("stroke",function(d) {return param.series[j].color; })    
          .on("mouseover", function(d) {
           d3.select(this)
-              .style ("stroke-width","1%")
-              .style ("stroke-opacity","1");
+              .style ("fill-opacity","1")
+              .style ("fill",$(this).css("stroke"))
+              .style ("stroke-width","2%")
+              .style ("transition","500ms");
          //переменная для определения в какой графике щелнули
          var graphicNum;
          if ($(this).attr("class")=="circle-one") graphicNum="-1";
@@ -459,20 +480,19 @@ function changeDate() {
          tooltipdiv.transition()
                    .duration(200)
                    .style("opacity", .9);
-         tooltipdiv .html(tipTimeFormat(d.Date) +   "<br/>"  + d[inputPoint+graphicNum])     
-                    .style("left", (d3.event.pageX + 10) + "px")             
-                    .style("top", (d3.event.pageY - 8) + "px");
+         tooltipdiv .html(tipTimeFormat(d.Date) +   "<br/> <b>"  + d[inputPoint+graphicNum] + "</b>")     
+                    .style("left", (d3.event.pageX + 19) + "px")             
+                    .style("top", (d3.event.pageY + 3) + "px");
           })
           .on("mouseout", function(d) { 
             d3.select(this)
-              .style ("stroke-width","2px")
-              .style ("stroke-opacity","0.5");   
+             .style ("fill-opacity","0")             
+             .style ("stroke-width","2px")
+             .style ("transition","0ms");   
             tooltipdiv.transition()    
                       .duration(500)    
                       .style("opacity", 0); 
            });
-
-
     };
   //востановили первоначальный дадасет от самого минимума о максимума
   data=originaldata;
@@ -480,13 +500,12 @@ function changeDate() {
 
  }//change data
 
+//****************************//
 
 function changeRegion () {
-
     //чистим списки
     d3.select("#point").selectAll(".dynamic-value").remove();
     d3.select('#point').property('value', 'init');
-
     idRegion=this.value;
     d3.tsv('/data/Reference_Sea_Level.tsv',function(error, dataP) 
     {  
@@ -509,8 +528,7 @@ function changeRegion () {
 //нужно для зануления графиков при смене региона   
 changePoint();
 }
-
-/*******************/
+//***************************************//
 //включение отключение видимости графика
 //выключение точек на графике
 $( "circle.dotControlBtn" ).click(function() {
@@ -560,16 +578,15 @@ else
   d3.selectAll(".circle-"+ subclass).style ("display","block");
   d3.select(".textlegend-"+ subclass).style ("opacity","0.7");
   };
-
-  
-
 });
-
-
+//****************************************//
+//рисуем точки на графике
+function drawDot (param,j)
+{
+  
+}
+//----------------------------------------------//
 };
-
-
-
 
 
 //парсим колонки 

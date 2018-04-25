@@ -385,7 +385,7 @@ function changeDate() {
   var parse = d3.timeParse('%d.%m.%Y');
   idPoint=$("#point").val();
   mindate =  parse(this.value);
-  var delay = function(d, i) { return i * 50; };
+  var delay = function(d, i) { return i * 10; };
   var dynamic = svg.transition().duration(550);
   var transremove = svg.transition().duration(750); 
   var dynamictip = g.transition().duration(550);
@@ -435,13 +435,13 @@ function changeDate() {
 
         transremove.selectAll(".line-"+param.series[j].name)
         .style ("opacity","0")
-        .remove ()
-        delay(delay);
+        .remove ();
+        //.delay(delay);
 
         transremove.selectAll(".circle-" +param.series[j].name)
         .style ("opacity","0")
-        .remove ()
-        delay(delay);
+        .remove ();
+        //.delay(delay);
 
       //прорисовываем
         g.append("path")
@@ -465,9 +465,11 @@ function changeDate() {
           .style ("fill-opacity","0")
           .style ("stroke-width","2px")
           .style ("stroke-opacity","0.5")
-          .style ("stroke",function(d) {return param.series[j].color; })    
+          .style ("stroke",function(d) {return param.series[j].color; });
+
+         g.selectAll(".circle-" +param.series[j].name)
          .on("mouseover", function(d) {
-          d3.select(this)
+               d3.select(this)
               .style ("fill-opacity","1")
               .style ("fill",$(this).css("stroke"))
               .style ("stroke-width","2%")

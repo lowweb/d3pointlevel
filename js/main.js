@@ -72,7 +72,7 @@ param=loadParam();
 //выгружаем в переменную данные за все время
 var originaldata;
 //сохранили массив в перменную, занесли в комбобокс даты
-d3.tsv("/data/sample2.tsv", function(error, data) {
+d3.tsv("/data/pl.tsv", function(error, data) {
       if (error) throw error;
       DataParse ("Date","%d.%m.%Y %H:%M",[idPoint+"-1",idPoint+"-2",idPoint+"-3"],data);
       //d3sChart(param,data);

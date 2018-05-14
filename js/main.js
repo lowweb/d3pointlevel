@@ -19,30 +19,6 @@ d3.tsv('/data/region.tsv',function(error, dataR)
     
 });
 
-//загрузили точки запомнили первый
-//убрал тк сначала точки пустые
-  /*  d3.tsv('/data/Reference_Sea_Level.tsv',function(error, dataP) 
-    {  
-        //dataR.filter(function(d) { return d.idregion == 9 })
-        var fields = dataP;
-        for (var i = 0; i < fields.length; i++) {
-            if (fields[i].idregion==idRegion)
-            {
-              if (i==0)
-              {
-                idPoint=fields[i].pointid;
-
-              }
-               d3.select('#point').append("option")
-                .attr("class", "dynamic-value")
-                .attr("value", fields[i].pointid)
-                .text(fields[i].name);
-            }
-        } 
-
-    });
-    */
-
 //$("#hour").val(1);
 //point=$("#hour").val();
 //point=idPoint;
@@ -93,8 +69,64 @@ d3.tsv("/data/pl.tsv", function(error, data) {
               tmpDate=dateFormat(fields[i].Date);
         }  
      //рисуем график
+      // пока убрали отрисовку
+     //MakeChart(param,data);            
+    });
+
+
+//загрузили периоды
+d3.tsv('/data/periods.tsv',function(error, dataR) 
+  {  
+    var fields = dataR;
+    for (var i = 0; i < fields.length; i++) {
+         if (i==0)
+         {
+          period=fields[i].fileName;
+
+         }
+
+        d3.select('#periods').append("option")
+        .attr("value", fields[i].fileName)
+        .text(fields[i].periodName);
+    }
+    
+
+//загружае данный по первому из списка файлов
+$("#datePeriod").prop('disabled', true);
+d3.tsv("/data/"+period+".tsv", function(error, data) {
+      if (error) throw error;
+      DataParse ("Date","%d.%m.%Y %H:%M",[idPoint+"-1",idPoint+"-2",idPoint+"-3"],data);
+
+      dateFormat = d3.timeFormat("%d.%m.%Y"); 
+     //рисуем график
+
      MakeChart(param,data);            
     });
+
+});
+
+d3.selectAll("#periods").on("change", changePeriod );
+
+function changePeriod () {
+  period=this.value;
+
+d3.select("#pointgraph_chart").remove();
+d3.select("#needdata-svg").remove();
+    //чистим списки
+d3.select("#point").selectAll(".dynamic-value").remove();
+d3.select('#point').property('value', 'init');
+d3.select('#region').property('value', 'init');
+param=loadParam();
+
+  d3.tsv("/data/"+ period +".tsv", function(error, data) {
+      if (error) throw error;
+      DataParse ("Date","%d.%m.%Y %H:%M",[idPoint+"-1",idPoint+"-2",idPoint+"-3"],data);
+      dateFormat = d3.timeFormat("%d.%m.%Y");
+      var fields = data,tmpDate;
+     //рисуем график
+     MakeChart(param,data);            
+    });
+ }
 
 
 

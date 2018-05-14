@@ -3,7 +3,6 @@ function MakeChart (param,data){
 
   var selectedObj = null;
   selectedObj = d3.select(param.parentSelector);
-
   var markerDotGlobal=1;
 
   if (param.width == 0) {param.width = parseInt(selectedObj.style('width'), 10);};
@@ -265,7 +264,9 @@ var tipTimeFormat = d3.timeFormat("%d.%m.%Y %H:%M");
 //обработчик комбобоксов
 d3.selectAll("#region").on("change", changeRegion);
 d3.selectAll("#point").on("change", changePoint);
-d3.selectAll("#datePeriod").on("change", changeDate);
+//пока убрали для перехода на множественные файлы
+//d3.selectAll("#datePeriod").on("change", changeDate);
+
 
 
 //----------Function------------//
@@ -501,6 +502,8 @@ function changeDate() {
 
 
  }//change data
+
+ 
 
 //****************************//
 
